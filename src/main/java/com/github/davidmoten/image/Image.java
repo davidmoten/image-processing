@@ -5,6 +5,8 @@ import ij.process.ColorProcessor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -37,23 +39,29 @@ public class Image {
 		}
 	}
 
-	public void findBoundaries(Line line, int threshold) {
+	public void findBoundaries(Line line, int maxDistanceToLine) {
 		log("finding boundaries for " + pixels.width() * pixels.height()
 				+ " pixels");
 		long t = System.currentTimeMillis();
+		Line2D segment = new Line2D.Double(new Point2D.Double(
+				line.x1(), line.y1()), new Point2D.Double(line.x2(),
+				line.y2()));
 		for (int x = 0; x < pixels.width(); x++)
 			for (int y = 0; y < pixels.height(); y++) {
 				int rgb = pixels.rgb(x, y);
 				int red = Pixels.red(rgb);
 				int green = Pixels.green(rgb);
 				int blue = Pixels.blue(rgb);
-				float distance = line.distance(x, y);
-				float factor = Math.max(0, threshold - distance) /threshold;
 				
+				double distance = segment.ptSegDist(new Point2D.Double(x,y));
+				double factor = Math.max(0, maxDistanceToLine - distance)
+						/ maxDistanceToLine;
+
 				float[] hsb = new float[3];
 				Color.RGBtoHSB(red, green, blue, hsb);
-				int color = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]* factor*factor);
-				
+				int color = Color.HSBtoRGB(hsb[0], hsb[1], (float) (hsb[2]
+						* factor * factor));
+
 				pixels.setRGB(x, y, color);
 				// pixels.setRGB(x, y, new Color(green, blue, 255 -
 				// red).getRGB());
@@ -67,8 +75,9 @@ public class Image {
 		int maxY = Math.max(line.y1(), line.y2());
 
 		BufferedImage subImage = image.getSubimage(
-				Math.max(0, minX - threshold), Math.max(0, minY - threshold),
-				maxX - minX + threshold, maxY - minY + threshold);
+				Math.max(0, minX - maxDistanceToLine),
+				Math.max(0, minY - maxDistanceToLine), maxX - minX
+						+ maxDistanceToLine, maxY - minY + maxDistanceToLine);
 
 		BufferedImage edges;
 		if (useCanny) {

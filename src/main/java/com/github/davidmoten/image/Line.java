@@ -2,8 +2,8 @@ package com.github.davidmoten.image;
 
 public class Line {
 	private final int x1, y1, x2, y2;
-	private final float m;
-	private final float c;
+	private final double m;
+	private final double c;
 
 	public Line(int x1, int y1, int x2, int y2) {
 		super();
@@ -32,7 +32,7 @@ public class Line {
 		return y2;
 	}
 
-	public float distance(int x, int y) {
+	public double distance(int x, int y) {
 		return (float) (Math.abs((x2-x1)*(y1-y)-(x1-x)*(y2-y1))/Math.sqrt(sq(x2-x1)+ sq(y2-y2)));
 	}
 
