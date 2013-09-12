@@ -4,22 +4,26 @@ import java.awt.image.BufferedImage;
 
 public class Pixels {
 
-	private final BufferedImage img;
+	private final BufferedImage image;
 
-	public Pixels(BufferedImage img) {
-		this.img = img;
+	public Pixels(BufferedImage image) {
+		this.image = image;
 	}
 
 	public int height() {
-		return img.getHeight();
+		return image.getHeight();
 	}
 
 	public int width() {
-		return img.getWidth();
+		return image.getWidth();
 	}
 
 	public int rgb(int x, int y) {
-		return img.getRGB(x, y);
+		return image.getRGB(x, y);
+	}
+
+	public void setRGB(int x, int y, int rgb) {
+		image.setRGB(x, y, rgb);
 	}
 
 	public static int red(int rgb) {
@@ -37,4 +41,5 @@ public class Pixels {
 	public static int alpha(int rgb) {
 		return (rgb >> 24) & 0x000000FF;
 	}
+
 }

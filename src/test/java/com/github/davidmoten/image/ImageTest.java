@@ -13,10 +13,10 @@ import org.junit.Test;
 public class ImageTest {
 
 	@Test
-	public void test() throws IOException {
+	public void test() {
 
 		Image image = Image.fromClasspath("/face.jpg");
-		// image.findBoundaries();
+		image.findBoundaries();
 	}
 
 	@Test
@@ -54,5 +54,10 @@ public class ImageTest {
 			assertEquals(255, blue(value));
 			assertEquals(0, alpha(value));
 		}
+	}
+
+	public static void main(String[] args) {
+		Image image = Image.fromClasspath("/telescope.png");
+		image.findBoundaries();
 	}
 }
