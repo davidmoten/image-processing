@@ -17,16 +17,10 @@ import javax.swing.JPanel;
 
 public class Image {
 
-	private final Pixels pixels;
 	private final BufferedImage image;
-
-	public Pixels getPixels() {
-		return pixels;
-	}
 
 	public Image(BufferedImage image) {
 		this.image = image;
-		pixels = new Pixels(image);
 	}
 
 	public static Image fromClasspath(String path) {
@@ -80,9 +74,9 @@ public class Image {
 		for (int x = 0; x < image.getWidth(); x++)
 			for (int y = 0; y < image.getHeight(); y++) {
 				int rgb = image.getRGB(x, y);
-				int red = Pixels.red(rgb);
-				int green = Pixels.green(rgb);
-				int blue = Pixels.blue(rgb);
+				int red = red(rgb);
+				int green = green(rgb);
+				int blue = blue(rgb);
 
 				double distance = segment.ptSegDist(new Point2D.Double(x, y));
 				double factor = Math.max(0, maxDistanceToLine - distance)
@@ -119,6 +113,34 @@ public class Image {
 
 	private static void log(String message) {
 		System.out.println(message);
+	}
+
+	public static int red(int rgb) {
+		return (rgb >> 16) & 0x000000FF;
+	}
+
+	public static int green(int rgb) {
+		return (rgb >> 8) & 0x000000FF;
+	}
+
+	public static int blue(int rgb) {
+		return (rgb) & 0x000000FF;
+	}
+
+	public static int alpha(int rgb) {
+		return (rgb >> 24) & 0x000000FF;
+	}
+
+	public int width() {
+		return image.getWidth();
+	}
+
+	public int height() {
+		return image.getHeight();
+	}
+
+	public int rgb(int i, int j) {
+		return image.getRGB(i, j);
 	}
 
 }
