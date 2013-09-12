@@ -1,5 +1,7 @@
 package com.github.davidmoten.image;
 
+import ij.process.ColorProcessor;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -13,6 +15,7 @@ import javax.swing.JPanel;
 
 public class Image {
 
+	private static final boolean useCanny = false;
 	private final Pixels pixels;
 	private final BufferedImage image;
 
@@ -57,15 +60,22 @@ public class Image {
 				Math.max(0, minX - threshold), Math.max(0, minY - threshold),
 				maxX - minX + threshold, maxY - minY + threshold);
 
-		CannyEdgeDetector detector = new CannyEdgeDetector();
+		BufferedImage edges;
+		if (useCanny) {
+			CannyEdgeDetector detector = new CannyEdgeDetector();
 
-		detector.setLowThreshold(0.5f);
-		detector.setHighThreshold(1.0f);
+			detector.setLowThreshold(0.5f);
+			detector.setHighThreshold(1.0f);
 
-		detector.setSourceImage(subImage);
-		detector.setContrastNormalized(false);
-		detector.process();
-		BufferedImage edges = detector.getEdgesImage();
+			detector.setSourceImage(subImage);
+			detector.setContrastNormalized(false);
+			detector.process();
+			edges = detector.getEdgesImage();
+		} else {
+			ColorProcessor ip = new ColorProcessor(subImage);
+			ip.findEdges();
+			edges = ip.getBufferedImage();
+		}
 		display(edges);
 	}
 
