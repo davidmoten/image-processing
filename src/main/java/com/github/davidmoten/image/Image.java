@@ -7,11 +7,13 @@ import javax.imageio.ImageIO;
 
 public class Image {
 
-	private final BufferedImage img;
 	private final Pixels pixels;
 
+	public Pixels getPixels() {
+		return pixels;
+	}
+
 	public Image(BufferedImage img) {
-		this.img = img;
 		pixels = new Pixels(img);
 	}
 

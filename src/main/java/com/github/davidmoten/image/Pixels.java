@@ -1,70 +1,25 @@
 package com.github.davidmoten.image;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 
 public class Pixels {
 
-	private final int[][] pixels;
+	private final BufferedImage img;
 
 	public Pixels(BufferedImage img) {
-		pixels = getPixels(img);
-	}
-
-	private static int[][] getPixels(BufferedImage image) {
-
-		final byte[] pixels = ((DataBufferByte) image.getRaster()
-				.getDataBuffer()).getData();
-		final int width = image.getWidth();
-		final int height = image.getHeight();
-		final boolean hasAlphaChannel = image.getAlphaRaster() != null;
-
-		int[][] result = new int[height][width];
-		if (hasAlphaChannel) {
-			final int pixelLength = 4;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += ((pixels[pixel] & 0xff) << 24); // alpha
-				argb += (pixels[pixel + 1] & 0xff); // blue
-				argb += ((pixels[pixel + 2] & 0xff) << 8); // green
-				argb += ((pixels[pixel + 3] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		} else {
-			final int pixelLength = 3;
-			for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
-				int argb = 0;
-				argb += -16777216; // 255 alpha
-				argb += (pixels[pixel] & 0xff); // blue
-				argb += ((pixels[pixel + 1] & 0xff) << 8); // green
-				argb += ((pixels[pixel + 2] & 0xff) << 16); // red
-				result[row][col] = argb;
-				col++;
-				if (col == width) {
-					col = 0;
-					row++;
-				}
-			}
-		}
-
-		return result;
+		this.img = img;
 	}
 
 	public int height() {
-		return pixels[0].length;
+		return img.getHeight();
 	}
 
 	public int width() {
-		return pixels.length;
+		return img.getWidth();
 	}
 
 	public int rgb(int x, int y) {
-		return pixels[x][y];
+		return img.getRGB(x, y);
 	}
 
 	public static int red(int rgb) {
@@ -80,6 +35,6 @@ public class Pixels {
 	}
 
 	public static int alpha(int rgb) {
-		return (rgb >> 32) & 0x000000FF;
+		return (rgb >> 24) & 0x000000FF;
 	}
 }
