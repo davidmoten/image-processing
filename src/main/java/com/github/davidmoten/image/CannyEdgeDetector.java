@@ -121,6 +121,7 @@ public class CannyEdgeDetector {
 		height = sourceImage.getHeight();
 		picsize = width * height;
 		initArrays();
+		restrictToLine();
 		readLuminance();
 		if (contrastNormalized)
 			normalizeContrast();
@@ -130,6 +131,10 @@ public class CannyEdgeDetector {
 		performHysteresis(low, high);
 		thresholdEdges();
 		writeEdges(data);
+	}
+
+	private void restrictToLine() {
+
 	}
 
 	// private utility methods

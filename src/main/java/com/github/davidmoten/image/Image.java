@@ -34,7 +34,7 @@ public class Image {
 		}
 	}
 
-	public void findBoundaries() {
+	public void findBoundaries(Line line, int threshold) {
 		log("finding boundaries for " + pixels.width() * pixels.height()
 				+ " pixels");
 		long t = System.currentTimeMillis();
@@ -48,12 +48,21 @@ public class Image {
 			}
 		log("found boundaries time ms = " + (System.currentTimeMillis() - t));
 
+		int minX = Math.min(line.x1(), line.x2());
+		int maxX = Math.max(line.x1(), line.x2());
+		int minY = Math.min(line.y1(), line.y2());
+		int maxY = Math.max(line.y1(), line.y2());
+
+		BufferedImage subImage = image.getSubimage(
+				Math.max(0, minX - threshold), Math.max(0, minY - threshold),
+				maxX - minX + threshold, maxY - minY + threshold);
+
 		CannyEdgeDetector detector = new CannyEdgeDetector();
 
 		detector.setLowThreshold(0.5f);
 		detector.setHighThreshold(1.0f);
 
-		detector.setSourceImage(image);
+		detector.setSourceImage(subImage);
 		detector.setContrastNormalized(false);
 		detector.process();
 		BufferedImage edges = detector.getEdgesImage();

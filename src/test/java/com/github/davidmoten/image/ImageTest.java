@@ -16,7 +16,7 @@ public class ImageTest {
 	public void test() {
 
 		Image image = Image.fromClasspath("/face.jpg");
-		image.findBoundaries();
+		image.findBoundaries(new Line(46, 130, 220, 80), 50);
 	}
 
 	@Test
@@ -58,6 +58,6 @@ public class ImageTest {
 
 	public static void main(String[] args) {
 		Image image = Image.fromClasspath("/telescope.png");
-		image.findBoundaries();
+		image.findBoundaries(new Line(46, 130, 220, 80), 50);
 	}
 }
