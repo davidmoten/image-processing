@@ -58,6 +58,6 @@ public class ImageTest {
 
 	public static void main(String[] args) throws IOException {
 			Image image = Image.fromClasspath("/telescope.png");
-			image.findBoundaries(new Line(100, 170, 285, 80), 50);
+			image.findBoundaries(new Line(75, 120, 285, 40), 30);
 	}
 }

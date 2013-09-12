@@ -47,9 +47,19 @@ public class Image {
 				int red = Pixels.red(rgb);
 				int green = Pixels.green(rgb);
 				int blue = Pixels.blue(rgb);
-				pixels.setRGB(x, y, new Color(green, blue, 255 - red).getRGB());
+				float distance = line.distance(x, y);
+				float factor = Math.max(0, threshold - distance) /threshold;
+				
+				float[] hsb = new float[3];
+				Color.RGBtoHSB(red, green, blue, hsb);
+				int color = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]* factor*factor);
+				
+				pixels.setRGB(x, y, color);
+				// pixels.setRGB(x, y, new Color(green, blue, 255 -
+				// red).getRGB());
 			}
 		log("found boundaries time ms = " + (System.currentTimeMillis() - t));
+		display(image);
 
 		int minX = Math.min(line.x1(), line.x2());
 		int maxX = Math.max(line.x1(), line.x2());
@@ -72,6 +82,7 @@ public class Image {
 			detector.process();
 			edges = detector.getEdgesImage();
 		} else {
+			// use ImageJ
 			ColorProcessor ip = new ColorProcessor(subImage);
 			ip.findEdges();
 			edges = ip.getBufferedImage();
