@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 
 public class Image {
 
-	private static final boolean useCanny = false;
 	private final Pixels pixels;
 	private final BufferedImage image;
 
@@ -39,21 +38,53 @@ public class Image {
 		}
 	}
 
+	private static final boolean processLine = true;
+
 	public void findBoundaries(Line line, int maxDistanceToLine) {
-		log("finding boundaries for " + pixels.width() * pixels.height()
-				+ " pixels");
-		long t = System.currentTimeMillis();
-		Line2D segment = new Line2D.Double(new Point2D.Double(
-				line.x1(), line.y1()), new Point2D.Double(line.x2(),
-				line.y2()));
-		for (int x = 0; x < pixels.width(); x++)
-			for (int y = 0; y < pixels.height(); y++) {
-				int rgb = pixels.rgb(x, y);
+		display(image);
+
+		BufferedImage subImage;
+		if (processLine) {
+			emphasizeAroundLine(image, line, maxDistanceToLine);
+			subImage = getSubImage(image, line, maxDistanceToLine);
+		} else
+			subImage = image;
+
+		BufferedImage edges;
+		// use ImageJ
+		ColorProcessor ip = new ColorProcessor(subImage);
+		ip.findEdges();
+		edges = ip.getBufferedImage();
+		display(edges);
+	}
+
+	private static BufferedImage getSubImage(BufferedImage image, Line line,
+			int maxDistanceToLine) {
+		BufferedImage subImage;
+		int minX = Math.min(line.x1(), line.x2());
+		int maxX = Math.max(line.x1(), line.x2());
+		int minY = Math.min(line.y1(), line.y2());
+		int maxY = Math.max(line.y1(), line.y2());
+		subImage = image.getSubimage(Math.max(0, minX - maxDistanceToLine),
+				Math.max(0, minY - maxDistanceToLine), maxX - minX
+						+ maxDistanceToLine, maxY - minY + maxDistanceToLine);
+		return subImage;
+	}
+
+	private static void emphasizeAroundLine(BufferedImage image, Line line,
+			int maxDistanceToLine) {
+		log("emphasizing lines for image of " + image.getWidth()
+				* image.getHeight() + " pixels");
+		Line2D segment = new Line2D.Double(new Point2D.Double(line.x1(),
+				line.y1()), new Point2D.Double(line.x2(), line.y2()));
+		for (int x = 0; x < image.getWidth(); x++)
+			for (int y = 0; y < image.getHeight(); y++) {
+				int rgb = image.getRGB(x, y);
 				int red = Pixels.red(rgb);
 				int green = Pixels.green(rgb);
 				int blue = Pixels.blue(rgb);
-				
-				double distance = segment.ptSegDist(new Point2D.Double(x,y));
+
+				double distance = segment.ptSegDist(new Point2D.Double(x, y));
 				double factor = Math.max(0, maxDistanceToLine - distance)
 						/ maxDistanceToLine;
 
@@ -62,41 +93,8 @@ public class Image {
 				int color = Color.HSBtoRGB(hsb[0], hsb[1], (float) (hsb[2]
 						* factor * factor));
 
-				pixels.setRGB(x, y, color);
-				// pixels.setRGB(x, y, new Color(green, blue, 255 -
-				// red).getRGB());
+				image.setRGB(x, y, color);
 			}
-		log("found boundaries time ms = " + (System.currentTimeMillis() - t));
-		display(image);
-
-		int minX = Math.min(line.x1(), line.x2());
-		int maxX = Math.max(line.x1(), line.x2());
-		int minY = Math.min(line.y1(), line.y2());
-		int maxY = Math.max(line.y1(), line.y2());
-
-		BufferedImage subImage = image.getSubimage(
-				Math.max(0, minX - maxDistanceToLine),
-				Math.max(0, minY - maxDistanceToLine), maxX - minX
-						+ maxDistanceToLine, maxY - minY + maxDistanceToLine);
-
-		BufferedImage edges;
-		if (useCanny) {
-			CannyEdgeDetector detector = new CannyEdgeDetector();
-
-			detector.setLowThreshold(0.5f);
-			detector.setHighThreshold(1.0f);
-
-			detector.setSourceImage(subImage);
-			detector.setContrastNormalized(false);
-			detector.process();
-			edges = detector.getEdgesImage();
-		} else {
-			// use ImageJ
-			ColorProcessor ip = new ColorProcessor(subImage);
-			ip.findEdges();
-			edges = ip.getBufferedImage();
-		}
-		display(edges);
 	}
 
 	public static void display(final BufferedImage image) {
@@ -119,7 +117,7 @@ public class Image {
 		});
 	}
 
-	private void log(String message) {
+	private static void log(String message) {
 		System.out.println(message);
 	}
 
