@@ -20,7 +20,7 @@ public class ImagePanel extends JPanel {
 	private final BufferedImage image;
 
 	private enum State {
-		INACTIVE, DRAWING_DIAMETER, ADJUSTING_SIZE, MOVING_ALONG_OBJECT
+		INACTIVE, DRAWING_DIAMETER, ADJUSTING_CONTOUR, MOVING_ALONG_OBJECT
 	}
 
 	private State state = State.INACTIVE;
@@ -42,8 +42,8 @@ public class ImagePanel extends JPanel {
 				} else if (state == State.DRAWING_DIAMETER) {
 					point2 = e.getPoint();
 					point3 = point2;
-					state = State.ADJUSTING_SIZE;
-				} else if (state == State.ADJUSTING_SIZE) {
+					state = State.ADJUSTING_CONTOUR;
+				} else if (state == State.ADJUSTING_CONTOUR) {
 					point3 = e.getPoint();
 					state = State.MOVING_ALONG_OBJECT;
 				} else if (state == State.MOVING_ALONG_OBJECT) {
@@ -62,7 +62,7 @@ public class ImagePanel extends JPanel {
 				if (state == State.DRAWING_DIAMETER) {
 					point2 = e.getPoint();
 					repaint();
-				} else if (state == State.ADJUSTING_SIZE) {
+				} else if (state == State.ADJUSTING_CONTOUR) {
 					point3 = e.getPoint();
 					repaint();
 				} else if (state == State.MOVING_ALONG_OBJECT) {
@@ -74,7 +74,7 @@ public class ImagePanel extends JPanel {
 	}
 
 	public static float getAngle(int x1, int y1, int x2, int y2) {
-		float angle = (float) Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
+		float angle = (float) Math.toDegrees(Math.atan2(y2 - y1, x2 - x1));
 
 		if (angle < 0) {
 			angle += 360;
@@ -90,30 +90,39 @@ public class ImagePanel extends JPanel {
 		g.setColor(Color.red);
 		if (state == State.DRAWING_DIAMETER)
 			g.drawLine(point1.x, point1.y, point2.x, point2.y);
-		else if (state == State.ADJUSTING_SIZE) {
-
-			AffineTransform old = g2d.getTransform();
-			float degrees = getAngle(point1.x, point1.y, point2.x, point2.y);
-			g2d.translate(point1.x, point1.y);
-			g2d.rotate(Math.toRadians(degrees));
-			// draw shape/image (will be rotated)
-			Line2D.Float ln = new Line2D.Float(point1.x, point1.y, point2.x,
-					point2.y);
-			int distanceFromLine = (int) Math.round(ln.ptLineDist(point3.x,
-					point3.y));
-			int distance = (int) Math.round(distance(point1.x, point1.y,
-					point2.x, point2.y));
-			System.out.println(distanceFromLine + "," + distance);
-			g.drawOval(0, 0, distance, distanceFromLine);
-			g2d.setTransform(old);
-			// things you draw after here will not be rotated
-			g.drawOval(ALLBITS, ABORT, WIDTH, HEIGHT);
+		else if (state == State.ADJUSTING_CONTOUR) {
+			drawContour(g, g2d);
+		} else if (state == State.MOVING_ALONG_OBJECT) {
+			drawContour(g, g2d);
 		}
 
 	}
 
-	private static double distance(int x, int y, int x2, int y2) {
-		return Math.sqrt(sq(x - x2) + sq(y - y2));
+	private void drawContour(Graphics g, Graphics2D g2d) {
+		AffineTransform old = g2d.getTransform();
+
+		float degrees = getAngle(point1.x, point1.y, point2.x, point2.y);
+		System.out.println("degrees=" + degrees);
+		AffineTransform aff = new AffineTransform();
+		aff.translate((point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+		aff.rotate(Math.toRadians(degrees));
+		g2d.transform(aff);
+		// draw shape/image (will be rotated)
+		Line2D.Float ln = new Line2D.Float(point1.x, point1.y, point2.x,
+				point2.y);
+
+		int distanceFromLine = (int) Math.round(ln.ptLineDist(point3.x,
+				point3.y));
+		int distance = (int) Math.round(distance(point1.x, point1.y, point2.x,
+				point2.y));
+		System.out.println(distanceFromLine + "," + distance);
+		g.drawOval(-distance / 2, -distanceFromLine, distance,
+				2 * distanceFromLine);
+		g2d.setTransform(old);
+	}
+
+	private static double distance(int x1, int y1, int x2, int y2) {
+		return Math.sqrt(sq(x1 - x2) + sq(y1 - y2));
 	}
 
 	private static float sq(float x) {
