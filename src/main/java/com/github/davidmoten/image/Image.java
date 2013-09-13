@@ -2,7 +2,6 @@ package com.github.davidmoten.image;
 
 import ij.process.ColorProcessor;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.geom.Line2D;
@@ -12,8 +11,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class Image {
 
@@ -44,11 +41,10 @@ public class Image {
 		} else
 			subImage = image;
 
-		BufferedImage edges;
 		// use ImageJ
 		ColorProcessor ip = new ColorProcessor(subImage);
 		ip.findEdges();
-		edges = ip.getBufferedImage();
+		BufferedImage edges = ip.getBufferedImage();
 		display(edges);
 	}
 
@@ -96,17 +92,19 @@ public class Image {
 
 			@Override
 			public void run() {
-				JFrame frame = new JFrame();
-				frame.setSize(image.getWidth(), image.getHeight());
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				JPanel panel = new JPanel();
-				panel.setLayout(new BorderLayout());
-				JLabel label = new JLabel("");
-				label.setIcon(new javax.swing.ImageIcon(image));
-				panel.add(label);
-				frame.getContentPane().add(panel);
-				frame.pack();
-				frame.setVisible(true);
+				try {
+					JFrame frame = new JFrame();
+					frame.setSize(image.getWidth(), image.getHeight());
+					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					ImagePanel panel = new ImagePanel(image);
+					frame.getContentPane().add(panel);
+					// frame.pack();
+					frame.setVisible(true);
+					frame.repaint();
+					log("frame visible");
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -141,6 +139,10 @@ public class Image {
 
 	public int rgb(int i, int j) {
 		return image.getRGB(i, j);
+	}
+
+	public BufferedImage getImage() {
+		return image;
 	}
 
 }
