@@ -85,26 +85,28 @@ public class ImagePanel extends JPanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
 		g.drawImage(image, 0, 0, this);
 		g.setColor(Color.red);
 		if (state == State.DRAWING_DIAMETER)
 			g.drawLine(point1.x, point1.y, point2.x, point2.y);
 		else if (state == State.ADJUSTING_CONTOUR) {
-			drawContour(g, g2d);
+			drawContour(g, (point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
 		} else if (state == State.MOVING_ALONG_OBJECT) {
-			drawContour(g, g2d);
+			drawContour(g, (point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+			g.setColor(Color.green);
+			g.drawLine(point3.x, point3.y, point4.x, point4.y);
+			drawContour(g, point4.x, point4.y);
 		}
-
 	}
 
-	private void drawContour(Graphics g, Graphics2D g2d) {
+	private void drawContour(Graphics g, int x, int y) {
+		Graphics2D g2d = (Graphics2D) g;
 		AffineTransform old = g2d.getTransform();
 
 		float degrees = getAngle(point1.x, point1.y, point2.x, point2.y);
 		System.out.println("degrees=" + degrees);
 		AffineTransform aff = new AffineTransform();
-		aff.translate((point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+		aff.translate(x, y);
 		aff.rotate(Math.toRadians(degrees));
 		g2d.transform(aff);
 		// draw shape/image (will be rotated)
