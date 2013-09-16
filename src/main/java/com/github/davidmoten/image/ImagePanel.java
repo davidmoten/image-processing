@@ -90,16 +90,18 @@ public class ImagePanel extends JPanel {
 		if (state == State.DRAWING_DIAMETER)
 			g.drawLine(point1.x, point1.y, point2.x, point2.y);
 		else if (state == State.ADJUSTING_CONTOUR) {
-			drawContour(g, (point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+			drawContour(g, (point1.x + point2.x) / 2,
+					(point1.y + point2.y) / 2, 360);
 		} else if (state == State.MOVING_ALONG_OBJECT) {
-			drawContour(g, (point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+			drawContour(g, (point1.x + point2.x) / 2,
+					(point1.y + point2.y) / 2, 360);
 			g.setColor(Color.green);
 			g.drawLine(point3.x, point3.y, point4.x, point4.y);
-			drawContour(g, point4.x, point4.y);
+			drawContour(g, point4.x, point4.y, 360);
 		}
 	}
 
-	private void drawContour(Graphics g, int x, int y) {
+	private void drawContour(Graphics g, int x, int y, int angle) {
 		Graphics2D g2d = (Graphics2D) g;
 		AffineTransform old = g2d.getTransform();
 
@@ -118,8 +120,8 @@ public class ImagePanel extends JPanel {
 		int distance = (int) Math.round(distance(point1.x, point1.y, point2.x,
 				point2.y));
 		System.out.println(distanceFromLine + "," + distance);
-		g.drawOval(-distance / 2, -distanceFromLine, distance,
-				2 * distanceFromLine);
+		g.drawArc(-distance / 2, -distanceFromLine, distance,
+				2 * distanceFromLine, 0, angle);
 		g2d.setTransform(old);
 	}
 

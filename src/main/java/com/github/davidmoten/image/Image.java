@@ -29,7 +29,7 @@ public class Image {
 		}
 	}
 
-	private static final boolean processLine = true;
+	private static final boolean processLine = false;
 
 	public void findBoundaries(Line line, int maxDistanceToLine) {
 		display(image);
