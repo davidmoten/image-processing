@@ -96,11 +96,29 @@ public class ImagePanel extends JPanel {
 			drawContour(g, (point1.x + point2.x) / 2,
 					(point1.y + point2.y) / 2, 360);
 			g.setColor(Color.green);
+			int meanX = (point1.x + point2.x) / 2;
+			int meanY = (point1.y + point2.y) / 2;
 			g.drawLine(point3.x, point3.y, point4.x, point4.y);
-			drawContour(g, point4.x, point4.y, 360);
+			int originX = meanX + point4.x - point3.x;
+			int originY = meanY + point4.y - point3.y;
+			// TODO at this point here the size of the ellipse could change
+			// because of perspective or change in the object itself (e.g. a
+			// vase getting bigger as you move up its height).
+
+			// for
+			drawContour(g, originX, originY, 180);
 		}
 	}
 
+	/**
+	 * Draws the ellipse contour for a circle. Point1 and Point2 are assumed to
+	 * be the visibly longest axis on the ellipse view of the circle.
+	 * 
+	 * @param g
+	 * @param x
+	 * @param y
+	 * @param angle
+	 */
 	private void drawContour(Graphics g, int x, int y, int angle) {
 		Graphics2D g2d = (Graphics2D) g;
 		AffineTransform old = g2d.getTransform();
